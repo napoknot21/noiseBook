@@ -1,4 +1,26 @@
-DROP TABLE IF EXISTS Utilisateur;
+DROP TABLE IF EXISTS concert;
+DROP TABLE IF EXISTS participe;
+DROP TABLE IF EXISTS performe;
+
+DROP TABLE IF EXISTS Association;
+DROP TABLE IF EXISTS Personne;
+DROP TABLE IF EXISTS Groupe;
+
+DROP TABLE IF EXISTS Evenement_Passe;
+
+DROP TABLE IF EXISTS Avis_equipe;
+DROP TABLE IF EXISTS Avis_Morceau;
+DROP TABLE IF EXISTS AviS_Lieu;
+DROP TABLE IF EXISTS Avis_Evenement;
+
+DROP TABLE IF EXISTS Tag_Lieu;
+DROP TABLE IF EXISTS Tag_Groupe;
+DROP TABLE IF EXISTS Tag_Concert;
+
+DROP TABLE IF EXISTS Sous_Genre;
+DROP TABLE IF EXISTS Genre;
+
+DROP TABLE IF EXISTS Utilisateur CASCADE;
 DROP TABLE IF EXISTS Avis;
 DROP TABLE IF EXISTS Evenement;
 DROP TABLE IF EXISTS Concert;
@@ -34,7 +56,7 @@ CREATE TABLE Groupe () INHERITS (Utilisateur);
 -- Evenment Entity
 CREATE TABLE Evenement (
     id_even INTEGER PRIMARY KEY,
-    date_h DATETIME PRIMARY KEY,
+    date_h DATE NOT NULL,
     nom VARCHAR NOT NULL,
     enfants BOOLEAN NOT NULL,
     exterieur BOOLEAN NOT NULL
@@ -66,7 +88,7 @@ CREATE TABLE Avis (
     id_avis INTEGER NOT NULL,
     id_user INTEGER NOT NULL,
     commentaire VARCHAR NOT NULL,
-    PRIMARY KEY (id_avis, id_user)
+    PRIMARY KEY (id_avis, id_user),
     FOREIGN KEY (id_user) REFERENCES Utilisateur (id_user)
 );
 
@@ -95,16 +117,16 @@ CREATE TABLE Sous_Genre (
 
 -- -Associations- --
 
-CREATE TABLE Concert (
+CREATE TABLE concert (
     id_even INTEGER NOT NULL,
     id_lieu INTEGER NOT NULL,
-    PRIMARY KEY (id_even, id_lieu)
+    PRIMARY KEY (id_even, id_lieu),
     FOREIGN KEY (id_even) REFERENCES Evenement(id_even),
     FOREIGN KEY (id_lieu) REFERENCES Lieu(id_lieu)
 );
 
 CREATE TABLE participe (
-    id_even INTEGER NOT NULL,
+    id_even INTEGER NOT NULL
 );
 
 CREATE TABLE organise (
