@@ -3,32 +3,40 @@ DROP TABLE IF EXISTS participe CASCADE;
 DROP TABLE IF EXISTS performe CASCADE;
 DROP TABLE IF EXISTS organise CASCADE;
 
+-- Sub entities (corresponding to 'Utilisateur')
 DROP TABLE IF EXISTS Association CASCADE;
 DROP TABLE IF EXISTS Personne CASCADE;
 DROP TABLE IF EXISTS Groupe CASCADE;
 
+-- Sub entities (corresponding to 'Evenement')
 DROP TABLE IF EXISTS Evenement_Passe CASCADE;
+DROP TABLE IF EXISTS Evenement_Future CASCADE;
 
-DROP TABLE IF EXISTS Avis_equipe CASCADE;
+-- Sub entities (corresponding to 'Avis')
+DROP TABLE IF EXISTS Avis_Groupe CASCADE;
+DROP TABLE IF EXISTS Avis_Association CASCADE;
 DROP TABLE IF EXISTS Avis_Morceau CASCADE;
 DROP TABLE IF EXISTS AviS_Lieu CASCADE;
 DROP TABLE IF EXISTS Avis_Evenement CASCADE;
+DROP TABLE IF EXISTS Avis_Playlist CASCADE;
 
+-- Sub entities (corresponding to 'Tag')
 DROP TABLE IF EXISTS Tag_Lieu CASCADE;
 DROP TABLE IF EXISTS Tag_Groupe CASCADE;
 DROP TABLE IF EXISTS Tag_Concert CASCADE;
+DROP TABLE IF EXISTS Tag_Genre CASCADE;
+DROP TABLE IF EXISTS Tag_Association CASCADE;
 
-DROP TABLE IF EXISTS Sous_Genre CASCADE;
 DROP TABLE IF EXISTS Genre CASCADE;
+DROP TABLE IF EXISTS Sous_Genre CASCADE;
 
-DROP TABLE IF EXISTS Utilisateur CASCADE;
-DROP TABLE IF EXISTS Avis CASCADE;
-DROP TABLE IF EXISTS Evenement CASCADE;
 DROP TABLE IF EXISTS Concert CASCADE;
 DROP TABLE IF EXISTS Concert_passe CASCADE;
+
 DROP TABLE IF EXISTS Lieu CASCADE;
-DROP TABLE IF EXISTS Tag CASCADE;
+
 DROP TABLE IF EXISTS Playlist CASCADE;
+
 
 -- Users Entity
 CREATE TABLE Utilisateur (
@@ -55,17 +63,16 @@ CREATE TABLE Groupe () INHERITS (Utilisateur);
 --);
 
 
--- Evenment Entity
-CREATE TABLE Evenement (
+-- Evenemenment Entity --
+
+-- Sub Evenement Entity
+CREATE TABLE Evenement_Passe (
     id_even INTEGER PRIMARY KEY,
     date_h DATE NOT NULL,
     nom VARCHAR NOT NULL,
     enfants BOOLEAN NOT NULL,
     exterieur BOOLEAN NOT NULL
 );
-
--- Sub Evenement Entity
-CREATE TABLE Evenement_Passe () INHERITS (Evenement);
 
 
 -- Place Entity
