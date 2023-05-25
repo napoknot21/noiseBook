@@ -1,6 +1,5 @@
 -- Sub entities (corresponding to 'Utilisateur')
-DROP TABLE IF EXISTS Association CASCADE;
-DROP TABLE IF EXISTS Personne CASCADE;
+DROP TABLE IF EXISTS Utilisateur CASACADE;
 DROP TABLE IF EXISTS Groupe CASCADE;
 
 -- Sub entities (corresponding to 'Evenement')
@@ -42,24 +41,15 @@ DROP TABLE IF EXISTS organise CASCADE; -- association and event associated
 
 -- Users sub entities --
 
-CREATE TABLE Association (
-    id_assoc SERIAL INTEGER PRIMARY KEY NOT NULL,
+CREATE TABLE Utilisateur (
+    id_user SERIAL INTEGER PRIMARY KEY NOT NULL,
     name_assoc VARCHAR NOT NULL,
     email VARCHAR NOT NULL UNIQUE,
-
-);
-
-CREATE TABLE Personne (
-    id_user SERIAL INTEGER PRIMARY KEY NOT NULL,
-    name_user VARCHAR NOT NULL,
-    email VARCHAR NOT NULL UNIQUE
 );
 
 CREATE TABLE Groupe (
-    id_grp SERIAL INTEGER PRIMARY KEY NOT NULL,
-    name_grp VARCHAR NOT NULL,
-    email VARCHAR NOT NULL UNIQUE
-);
+    status_g BOOLEAN NOT NULL
+) INHERITS (Utilisateur);
 
 
 -- Place Entity --
@@ -100,8 +90,8 @@ CREATE TABLE Morceau (
     id_s SERIAL INTEGER PRIMARY KEY,
     id_g INTEGER NOT NULL,
     album TEXT NOT NULL,
-    n_order INTEGER NOT NULL
-    FOREIGN KEY (id_g) REFERENCES Groupe (id_grp) ON DELETE CASCADE ON UPDATE CASCADE
+    n_order INTEGER NOT NULL,
+    FOREIGN KEY (id_g) REFERENCES Groupe (id_user) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 
@@ -125,8 +115,8 @@ CREATE TABLE Avis_Groupe (
     note_g INTEGER NOT NULL,
     CONSTRAINT note_min CHECK (note_g >= 0),
     CONSTRAINT note_max CHECK (note_g <= 5),
-    FOREIGN KEY (id_user) REFERENCES Personne (id_user) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (id_grp) REFERENCES Groupe (id_grp) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (id_user) REFERENCES Utilisateur (id_user) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (id_grp) REFERENCES Groupe (id_user) ON DELETE CASCADE ON UPDATE CASCADE,
     UNIQUE (id_user, id_grp) -- the user can only rate the band once 
 );
 
@@ -138,7 +128,7 @@ CREATE TABLE Avis_Morceau (
     note_song INTEGER NOT NULL,
     CONSTRAINT note_min CHECK (note_song >= 0),
     CONSTRAINT note_max CHECK (note_song <= 5),
-    FOREIGN KEY (id_user) REFERENCES Personne (id_user) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (id_user) REFERENCES Utilisateur (id_user) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (id_song) REFERENCES Morceau (id_song) ON DELETE CASCADE ON UPDATE CASCADE,
     UNIQUE (id_user, id_song) -- the user can only rate the band once 
 );
@@ -151,7 +141,7 @@ CREATE TABLE Avis_Evenement (
     note_event INTEGER NOT NULL,
     CONSTRAINT note_min CHECK(note_event >= 0),
 	CONSTRAINT note_max CHECK(note_event <= 5),
-    FOREIGN KEY (id_user) REFERENCES Personne (id_user) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (id_user) REFERENCES Utilisateur (id_user) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (id_event) REFERENCES Evenement_Passe (id_event) ON DELETE CASCADE ON UPDATE CASCADE,
     UNIQUE (id_user, id_event)
 );
@@ -164,7 +154,7 @@ CREATE TABLE Avis_Lieu (
     note_p INTEGER NOT NULL,
 	CONSTRAINT note_min CHECK(note_p >= 0),
 	CONSTRAINT note_max CHECK(note_p <= 5),
-    FOREIGN KEY (id_user) REFERENCES Personne (id_user) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (id_user) REFERENCES Utilisateur (id_user) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (id_event) REFERENCES Lieu (id_place) ON DELETE CASCADE ON UPDATE CASCADE,
     UNIQUE (id_user, id_place)
 );
@@ -188,7 +178,7 @@ CREATE TABLE Tag_Lieu(
 CREATE TABLE Tag_Groupe (
     id_tg SERIAL INTEGER PRIMARY KEY NOT NULL,
     id_grp INTEGER NOT NULL,
-    FOREIGN KEY (id_grp) REFERENCES Groupe (id_grp) ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY (id_grp) REFERENCES Groupe (id_user) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 
@@ -209,7 +199,7 @@ CREATE TABLE concert (
     id_grp INTEGER NOT NULL,
     id_event INTEGER NOT NULL,
     PRIMARY KEY (id_event, id_grp),
-    FOREIGN KEY (id_grp) REFERENCES Groupe (id_grp) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (id_grp) REFERENCES Groupe (id_user) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (id_event) REFERENCES Evenement_Futur (id_event) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
