@@ -16,6 +16,7 @@ DROP TABLE IF EXISTS Avis_Evenement CASCADE;
 DROP TABLE IF EXISTS Avis_Playlist CASCADE;
 
 -- Sub entities (corresponding to 'Tag')
+DROP TABLE IF EXISTS Tag_General CASCADE;
 DROP TABLE IF EXISTS Tag_Lieu CASCADE;
 DROP TABLE IF EXISTS Tag_Groupe CASCADE;
 DROP TABLE IF EXISTS Tag_Concert CASCADE;
@@ -80,6 +81,7 @@ CREATE TABLE Evenement_Passe (
     name_ep VARCHAR NOT NULL,
     kids_ep BOOLEAN NOT NULL,
     ext_ep BOOLEAN NOT NULL,
+    mult_ep TEXT NOT NULL,
     FOREIGN KEY (id_p) REFERENCES Lieu (id_place) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
@@ -94,13 +96,22 @@ CREATE TABLE Evenement_Futur (
 );
 
 
+CREATE TABLE Morceau (
+    id_s SERIAL INTEGER PRIMARY KEY,
+    id_g INTEGER NOT NULL,
+    album TEXT NOT NULL,
+    n_order INTEGER NOT NULL
+    FOREIGN KEY (id_g) REFERENCES Groupe (id_grp) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
 
 -- Playlist Entity --
 
 CREATE TABLE Playlist (
     id_pl SERIAL INTEGER PRIMARY KEY,
     name_pl VARCHAR NOT NULL,
-    desc_pl VARCHAR
+    desc_pl VARCHAR,
+
 );
 
 
@@ -110,7 +121,10 @@ CREATE TABLE Avis_Groupe (
     id_avis SERIAL INTEGER NOT NULL,
     id_user INTEGER NOT NULL,
     id_grp INTEGER NOT NULL
-    commentary VARCHAR(50) NOT NULL,
+    commentary VARCHAR(50),
+    note_g INTEGER NOT NULL,
+    CONSTRAINT note_min CHECK (note_g >= 0),
+    CONSTRAINT note_max CHECK (note_g <= 5),
     FOREIGN KEY (id_user) REFERENCES Personne (id_user) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (id_grp) REFERENCES Groupe (id_grp) ON DELETE CASCADE ON UPDATE CASCADE,
     UNIQUE (id_user, id_grp) -- the user can only rate the band once 
@@ -121,6 +135,9 @@ CREATE TABLE Avis_Morceau (
     id_user INTEGER NOT NULL,
     id_song INTEGER NOT NULL,
     commentary VARCHAR(50) NOT NULL,
+    note_song INTEGER NOT NULL,
+    CONSTRAINT note_min CHECK (note_song >= 0),
+    CONSTRAINT note_max CHECK (note_song <= 5),
     FOREIGN KEY (id_user) REFERENCES Personne (id_user) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (id_song) REFERENCES Morceau (id_song) ON DELETE CASCADE ON UPDATE CASCADE,
     UNIQUE (id_user, id_song) -- the user can only rate the band once 
@@ -130,11 +147,12 @@ CREATE TABLE Avis_Evenement (
     id_avis SERIAL INTEGER NOT NULL,
     id_user INTEGER NOT NULL,
     id_event INTEGER NOT NULL,
-    commentary VARCHAR(50) NOT NULL,
+    commentary VARCHAR(50),
+    note_event INTEGER NOT NULL,
+    CONSTRAINT note_min CHECK(note_event >= 0),
+	CONSTRAINT note_max CHECK(note_event <= 5),
     FOREIGN KEY (id_user) REFERENCES Personne (id_user) ON DELETE CASCADE ON UPDATE CASCADE,
-    -- TODO: check for the id_event references (if it refers to a passed event or to a future one)
-    --FOREIGN KEY (id_event) REFERENCES Evenement_Passe (id_event) ON DELETE CASCADE ON UPDATE CASCADE,
-    --FOREIGN KEY (id_event) REFERENCES Evenement_Futur (id_event) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (id_event) REFERENCES Evenement_Passe (id_event) ON DELETE CASCADE ON UPDATE CASCADE,
     UNIQUE (id_user, id_event)
 );
 
@@ -143,6 +161,9 @@ CREATE TABLE Avis_Lieu (
     id_user INTEGER NOT NULL,
     id_place INTEGER NOT NULL,
     commentary VARCHAR(50) NOT NULL,
+    note_p INTEGER NOT NULL,
+	CONSTRAINT note_min CHECK(note_p >= 0),
+	CONSTRAINT note_max CHECK(note_p <= 5),
     FOREIGN KEY (id_user) REFERENCES Personne (id_user) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (id_event) REFERENCES Lieu (id_place) ON DELETE CASCADE ON UPDATE CASCADE,
     UNIQUE (id_user, id_place)
@@ -151,6 +172,11 @@ CREATE TABLE Avis_Lieu (
 
 
 -- Tag Entities --
+
+CREATE TABLE Tag_General (
+    id_tag SERIAL INTEGER PRIMARY KEY NOT NULL,
+    text TEXT NOT NULL
+);
 
 CREATE TABLE Tag_Lieu(
     id_tp SERIAL INTEGER PRIMARY KEY NOT NULL,
@@ -182,17 +208,30 @@ CREATE TABLE Genre (
 CREATE TABLE concert (
     id_grp INTEGER NOT NULL,
     id_event INTEGER NOT NULL,
-    --PRIMARY KEY (id_event, id_lieu),
+    PRIMARY KEY (id_event, id_grp),
     FOREIGN KEY (id_grp) REFERENCES Groupe (id_grp) ON DELETE CASCADE ON UPDATE CASCADE,
-    -- TODO: Check for the Event sub entity
-    --FOREIGN KEY (id_event) REFERENCES Evenement_Futur (id_event) ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY (id_event) REFERENCES Evenement_Futur (id_event) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE organise (
     id_assoc INTEGER NOT NULL,
     id_event INTEGER NOT NULL,
-    --PRIMARY KEY (id_event, id_lieu),
+    PRIMARY KEY (id_event, id_lieu),
     FOREIGN KEY (id_assoc) REFERENCES Association (id_assoc) ON DELETE CASCADE ON UPDATE CASCADE,
-    -- TODO: Check for the Event sub entity
-    --FOREIGN KEY (id_event) REFERENCES Evenement_Futur (id_event) ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY (id_event) REFERENCES Evenement_Futur (id_event) ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+CREATE TABLE status (
+    id_p INTEGER NOT NULL,
+    id_event INTEGER NOT NULL,
+    status_s TEXT IN ('INTERESSESTED', 'PARTICIPATE', 'NOT_INTERESTED'),
+    PRIMARY KEY (id_p, id_event),
+    FOREIGN KEY (id_assoc) REFERENCES Association (id_assoc) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (id_event) REFERENCES Evenement_Futur (id_event) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+/*
+CREATE TABLE follows (
+    id_
+)
+*/
