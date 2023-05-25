@@ -1,8 +1,3 @@
-DROP TABLE IF EXISTS concert CASCADE;
-DROP TABLE IF EXISTS participe CASCADE;
-DROP TABLE IF EXISTS performe CASCADE;
-DROP TABLE IF EXISTS organise CASCADE;
-
 -- Sub entities (corresponding to 'Utilisateur')
 DROP TABLE IF EXISTS Association CASCADE;
 DROP TABLE IF EXISTS Personne CASCADE;
@@ -27,105 +22,90 @@ DROP TABLE IF EXISTS Tag_Concert CASCADE;
 DROP TABLE IF EXISTS Tag_Genre CASCADE;
 DROP TABLE IF EXISTS Tag_Association CASCADE;
 
-DROP TABLE IF EXISTS Genre CASCADE;
-DROP TABLE IF EXISTS Sous_Genre CASCADE;
-
-DROP TABLE IF EXISTS Concert CASCADE;
-DROP TABLE IF EXISTS Concert_passe CASCADE;
-
--- Main entity corresponding to the place where the evenment/concert takes place
+-- Main entity corresponding to the place where the event/concert takes place
 DROP TABLE IF EXISTS Lieu CASCADE;
 
 -- Main entity corresponding to a band's (or bands') song
 DROP TABLE IF EXISTS Morceau CASCADE;
 
+-- Main entity corresponding to a gender group, song, etc.
+DROP TABLE IF EXISTS Genre CASCADE;
+
 -- Main entities corresponding to Playlist
 DROP TABLE IF EXISTS Playlist CASCADE;
 
+-- Some relational associations
+DROP TABLE IF EXISTS concert CASCADE; -- group and event associated
+DROP TABLE IF EXISTS organise CASCADE; -- association and event associated
 
--- Users Entity
-/*
-CREATE TABLE Utilisateur (
-    id_user SERIAL INTEGER PRIMARY KEY NOT NULL,
-    nom VARCHAR NOT NULL,
-    email VARCHAR NOT NULL UNIQUE
-);
-*/
 
--- Users sub entities
+-- Users sub entities --
+
 CREATE TABLE Association (
     id_assoc SERIAL INTEGER PRIMARY KEY NOT NULL,
-    nom VARCHAR NOT NULL,
-    email VARCHAR NOT NULL UNIQUE
-); -- -INHERITS (Utilisateur);
+    name_assoc VARCHAR NOT NULL,
+    email VARCHAR NOT NULL UNIQUE,
+
+);
 
 CREATE TABLE Personne (
     id_user SERIAL INTEGER PRIMARY KEY NOT NULL,
-    nom VARCHAR NOT NULL,
+    name_user VARCHAR NOT NULL,
     email VARCHAR NOT NULL UNIQUE
-);-- INHERITS (Utilisateur);
+);
 
 CREATE TABLE Groupe (
     id_grp SERIAL INTEGER PRIMARY KEY NOT NULL,
-    nom VARCHAR NOT NULL,
+    name_grp VARCHAR NOT NULL,
     email VARCHAR NOT NULL UNIQUE
-); --INHERITS (Utilisateur);
-
-
-
--- CREATE TABLE concert (
---    heure DATETIME PRIMARY KEY,
---    line_up VARCHAR,
---   nb_places INTEGER,
---    volontaires INTEGER,
---    cause TYPE,
---   espace_ext BOOLEAN,
---    enfants BOOLEAN NOT NULL,
---    heure DATETIME
---);
-
-
--- Event Entity --
-
--- Sub Event Entity
-CREATE TABLE Evenement_Passe (
-    id_event INTEGER PRIMARY KEY,
-    date_e DATE NOT NULL,
-    name_e VARCHAR NOT NULL,
-    kids_e BOOLEAN NOT NULL,
-    ext_e BOOLEAN NOT NULL
 );
 
 
--- Place Entity
+-- Place Entity --
+
 CREATE TABLE Lieu (
     id_place SERIAL INTEGER PRIMARY KEY,
     name_p VARCHAR NOT NULL,
     city_p VARCHAR NOT NULL,
-    code_postal INTEGER NOT NULL
+    cp_p INTEGER NOT NULL -- code Postal
 );
 
 
--- Playlist Entity
+-- Event sub Entities --
+
+CREATE TABLE Evenement_Passe (
+    id_event SERIAL INTEGER PRIMARY KEY,
+    id_p INTEGER NOT NULL,
+    date_ep DATE NOT NULL,
+    name_ep VARCHAR NOT NULL,
+    kids_ep BOOLEAN NOT NULL,
+    ext_ep BOOLEAN NOT NULL,
+    FOREIGN KEY (id_p) REFERENCES Lieu (id_place) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE Evenement_Futur (
+    id_event SERIAL INTEGER PRIMARY KEY,
+    id_p INTEGER NOT NULL,
+    date_ef DATE NOT NULL,
+    name_ef VARCHAR NOT NULL,
+    kids_ef BOOLEAN NOT NULL,
+    ext_ef BOOLEAN NOT NULL,
+    FOREIGN KEY (id_p) REFERENCES Lieu (id_place) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+
+
+-- Playlist Entity --
+
 CREATE TABLE Playlist (
-    id INTEGER PRIMARY KEY,
-    nom VARCHAR NOT NULL,
-    description VARCHAR
+    id_pl SERIAL INTEGER PRIMARY KEY,
+    name_pl VARCHAR NOT NULL,
+    desc_pl VARCHAR
 );
 
 
--- Opinions Entity
-/*
-CREATE TABLE Avis (
-    id_avis INTEGER NOT NULL,
-    id_user INTEGER NOT NULL,
-    commentaire VARCHAR NOT NULL,
-    PRIMARY KEY (id_avis, id_user),
-    FOREIGN KEY (id_user) REFERENCES Utilisateur (id_user)
-);
-*/
+-- Opinion sub entities --
 
--- Sub Opinions entities
 CREATE TABLE Avis_Groupe (
     id_avis SERIAL INTEGER NOT NULL,
     id_user INTEGER NOT NULL,
@@ -146,13 +126,13 @@ CREATE TABLE Avis_Morceau (
     UNIQUE (id_user, id_song) -- the user can only rate the band once 
 );
 
--- TODO: check for the id_event references (if it refers to a passed event or to a future one)
 CREATE TABLE Avis_Evenement (
     id_avis SERIAL INTEGER NOT NULL,
     id_user INTEGER NOT NULL,
     id_event INTEGER NOT NULL,
     commentary VARCHAR(50) NOT NULL,
     FOREIGN KEY (id_user) REFERENCES Personne (id_user) ON DELETE CASCADE ON UPDATE CASCADE,
+    -- TODO: check for the id_event references (if it refers to a passed event or to a future one)
     --FOREIGN KEY (id_event) REFERENCES Evenement_Passe (id_event) ON DELETE CASCADE ON UPDATE CASCADE,
     --FOREIGN KEY (id_event) REFERENCES Evenement_Futur (id_event) ON DELETE CASCADE ON UPDATE CASCADE,
     UNIQUE (id_user, id_event)
@@ -169,40 +149,50 @@ CREATE TABLE Avis_Lieu (
 );
 
 
--- Tag Entity
-CREATE TABLE Tag ();
 
--- Sub Tags entities
-CREATE TABLE Tag_Lieu() INHERITS (Tag);
-CREATE TABLE Tag_Concert () INHERITS (Tag);
-CREATE TABLE Tag_Groupe () INHERITS (Tag);
+-- Tag Entities --
+
+CREATE TABLE Tag_Lieu(
+    id_tp SERIAL INTEGER PRIMARY KEY NOT NULL,
+    id_p INTEGER NOT NULL,
+    FOREIGN KEY (id_p) REFERENCES Lieu (id_place) ON DELETE CASCADE ON UPDATE CASCADE,
+    UNIQUE (id_tp, id_p)
+);
+
+CREATE TABLE Tag_Groupe (
+    id_tg SERIAL INTEGER PRIMARY KEY NOT NULL,
+    id_grp INTEGER NOT NULL,
+    FOREIGN KEY (id_grp) REFERENCES Groupe (id_grp) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+
+
+-- Gender entity --
 
 CREATE TABLE Genre (
-    nom VARCHAR PRIMARY KEY NOT NULL
-) INHERITS (Tag);
+    id_g SERIAL PRIMARY KEY,
+    name_g VARCHAR PRIMARY KEY NOT NULL,
+    UNIQUE (id_g, name_g)
+);
 
-CREATE TABLE Sous_Genre (
-    nom VARCHAR PRIMARY KEY NOT NULL
-) INHERITS (Genre);
+
 
 -- -Associations- --
 
 CREATE TABLE concert (
-    id_even INTEGER NOT NULL,
-    id_lieu INTEGER NOT NULL,
-    PRIMARY KEY (id_even, id_lieu),
-    FOREIGN KEY (id_even) REFERENCES Evenement(id_even),
-    FOREIGN KEY (id_lieu) REFERENCES Lieu(id_lieu)
-);
-
-CREATE TABLE participe (
-    id_even INTEGER NOT NULL
+    id_grp INTEGER NOT NULL,
+    id_event INTEGER NOT NULL,
+    --PRIMARY KEY (id_event, id_lieu),
+    FOREIGN KEY (id_grp) REFERENCES Groupe (id_grp) ON DELETE CASCADE ON UPDATE CASCADE,
+    -- TODO: Check for the Event sub entity
+    --FOREIGN KEY (id_event) REFERENCES Evenement_Futur (id_event) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE organise (
-
-);
-
-CREATE TABLE performe (
-
+    id_assoc INTEGER NOT NULL,
+    id_event INTEGER NOT NULL,
+    --PRIMARY KEY (id_event, id_lieu),
+    FOREIGN KEY (id_assoc) REFERENCES Association (id_assoc) ON DELETE CASCADE ON UPDATE CASCADE,
+    -- TODO: Check for the Event sub entity
+    --FOREIGN KEY (id_event) REFERENCES Evenement_Futur (id_event) ON DELETE CASCADE ON UPDATE CASCADE
 );
