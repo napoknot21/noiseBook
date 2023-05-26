@@ -3,7 +3,8 @@
 CREATE TABLE Utilisateur (
     id_user SERIAL PRIMARY KEY NOT NULL, -- unique identifier for the user
     name_user VARCHAR NOT NULL, -- user's name
-    email VARCHAR NOT NULL UNIQUE -- user's email address
+    email VARCHAR NOT NULL UNIQUE, -- user's email address
+    UNIQUE (email)
 );
 
 -- Users sub entities (Groupe) --
@@ -18,6 +19,7 @@ CREATE TABLE Groupe (
 -- Table to store song data. Each song has a unique id, and is associated with a group and an album.
 CREATE TABLE Morceau (
     id_s SERIAL PRIMARY KEY NOT NULL, -- unique identifier for the song
+    name_s TEXT NOT NULL,
     id_g INTEGER NOT NULL, -- id of the group that the song belongs to
     album TEXT NOT NULL, -- name of the album that the song belongs to
     n_order INTEGER NOT NULL, -- order of the song in the album
