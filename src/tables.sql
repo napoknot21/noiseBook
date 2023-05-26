@@ -1,110 +1,111 @@
--- Main entity: Utilisateur --
-
+-- Main entity: User (Utilisateur) --
+-- Table to store user data. Each user has a unique id, name, and email.
 CREATE TABLE Utilisateur (
-    id_user SERIAL PRIMARY KEY NOT NULL,
-    name_assoc VARCHAR NOT NULL,
-    email VARCHAR NOT NULL UNIQUE
+    id_user SERIAL PRIMARY KEY NOT NULL, -- unique identifier for the user
+    name_user VARCHAR NOT NULL, -- user's name
+    email VARCHAR NOT NULL UNIQUE -- user's email address
 );
 
-
--- Users sub entities --
-
+-- Users sub entities (Groupe) --
+-- Table to represent user groups. Each group is also a user and inherits from the User table.
 CREATE TABLE Groupe (
-    id_user SERIAL PRIMARY KEY NOT NULL,
-    status_g BOOLEAN NOT NULL -- a 'checked' or not checked artist
+    id_user SERIAL PRIMARY KEY NOT NULL, -- unique identifier for the group, also a user id
+    status_g BOOLEAN NOT NULL -- indicates whether the group is 'checked' or not checked
 ) INHERITS (Utilisateur);
 
 
--- Song entity --
-
+-- Song entity (Morceau) --
+-- Table to store song data. Each song has a unique id, and is associated with a group and an album.
 CREATE TABLE Morceau (
-    id_s SERIAL PRIMARY KEY NOT NULL,
-    id_g INTEGER NOT NULL,
-    album TEXT NOT NULL,
-    n_order INTEGER NOT NULL,
+    id_s SERIAL PRIMARY KEY NOT NULL, -- unique identifier for the song
+    id_g INTEGER NOT NULL, -- id of the group that the song belongs to
+    album TEXT NOT NULL, -- name of the album that the song belongs to
+    n_order INTEGER NOT NULL, -- order of the song in the album
     FOREIGN KEY (id_g) REFERENCES Groupe (id_user) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 
--- Place Entity --
-
+-- Place entity (Lieu) --
+-- Table to store data about places. Each place has a unique id, name, city and zip code.
 CREATE TABLE Lieu (
-    id_place SERIAL PRIMARY KEY,
-    name_p VARCHAR NOT NULL,
-    city_p VARCHAR NOT NULL,
-    cp_p INTEGER NOT NULL -- code Postal
+    id_place SERIAL PRIMARY KEY, -- unique identifier for the place
+    name_p VARCHAR NOT NULL, -- name of the place
+    city_p VARCHAR NOT NULL, -- city where the place is located
+    cp_p INTEGER NOT NULL -- zip code of the place
 );
 
 
--- Main entities: Evenement_Passe and Evenement_Futur --
 
+-- Main entities: Past Event (Evenement_Passe) and Future Event (Evenement_Futur) --
+-- Table to store data about events. Each event has a unique id and is associated with a place.
 CREATE TABLE Evenement (
-    id_event SERIAL PRIMARY KEY,
-    id_p INTEGER NOT NULL,
+    id_event SERIAL PRIMARY KEY, -- unique identifier for the event
+    id_p INTEGER NOT NULL, -- id of the place where the event will be held
+    kids BOOLEAN NOT NULL, -- whether the event is suitable for kids
+    ext BOOLEAN NOT NULL, -- external or internal event
     FOREIGN KEY (id_p) REFERENCES Lieu (id_place) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+-- Sub-table for past events. Inherits from Event table.
 CREATE TABLE Evenement_Passe (
-    id_event INTEGER PRIMARY KEY,
-    date_ep DATE NOT NULL,
-    name_ep VARCHAR NOT NULL,
-    kids_ep BOOLEAN NOT NULL,
-    ext_ep BOOLEAN NOT NULL,
-    mult_ep TEXT NOT NULL
+    id_event INTEGER PRIMARY KEY, -- unique identifier for the event, also an event id
+    date_ep DATE NOT NULL, -- date of the event
+    name_ep VARCHAR NOT NULL, -- name of the event
+    mult_ep TEXT NOT NULL -- multimedia attribute
 ) INHERITS (Evenement);
 
-
+-- Sub-table for future events. Inherits from Event table.
 CREATE TABLE Evenement_Futur (
-    id_event INTEGER PRIMARY KEY,
-    date_ef DATE NOT NULL,
-    name_ef VARCHAR NOT NULL,
-    kids_ef BOOLEAN NOT NULL,
-    ext_ef BOOLEAN NOT NULL
+    id_event INTEGER PRIMARY KEY, -- unique identifier for the event, also an event id
+    date_ef DATE NOT NULL, -- date of the event
+    name_ef VARCHAR NOT NULL, -- name of the event
 ) INHERITS (Evenement);
 
 
--- Gender entity --
-
+-- Gender entity (Genre) --
+-- Table to store data about music genres. Each genre has a unique id and name.
 CREATE TABLE Genre (
-    id_g SERIAL PRIMARY KEY,
-    name_genre VARCHAR NOT NULL,
-    UNIQUE (name_genre)
+    id_g SERIAL PRIMARY KEY, -- unique identifier for the genre
+    name_genre VARCHAR NOT NULL, -- name of the genre
+    UNIQUE (name_genre) -- the genre name is unique
 );
 
 
 -- Main entity: Playlist --
-
+-- Table to store data about playlists. Each playlist has a unique id, a name and a description.
 CREATE TABLE Playlist (
-    id_pl SERIAL PRIMARY KEY,
-    name_pl VARCHAR NOT NULL,
-    desc_pl VARCHAR
+    id_pl SERIAL PRIMARY KEY, -- unique identifier for the playlist
+    name_pl VARCHAR NOT NULL, -- name of the playlist
+    desc_pl VARCHAR -- description of the playlist
 );
 
 
--- Opinion sub entities --
-
+-- Opinion sub entities (Avis) --
+-- Main table for storing reviews. Each review has a unique id.
 CREATE TABLE Avis (
-    id_avis SERIAL PRIMARY KEY
+    id_avis SERIAL PRIMARY KEY -- unique identifier for the review
 );
 
+-- Sub-table for reviews about groups. Inherits from Review table.
 CREATE TABLE Avis_Groupe (
-    id_avis INTEGER PRIMARY KEY NOT NULL,
-    id_user INTEGER NOT NULL,
-    id_grp INTEGER NOT NULL,
-    commentary VARCHAR(50),
-    note_g INTEGER NOT NULL,
+    id_avis INTEGER PRIMARY KEY NOT NULL, -- unique identifier for the review, also a review id
+    id_user INTEGER NOT NULL, -- id of the user who wrote the review
+    id_grp INTEGER NOT NULL, -- id of the group the review is about
+    commentary VARCHAR(50), -- the review itself
+    note_g INTEGER NOT NULL, -- the rating the user gave
     CONSTRAINT note_min CHECK (note_g >= 0),
     CONSTRAINT note_max CHECK (note_g <= 5),
     FOREIGN KEY (id_avis) REFERENCES Avis (id_avis) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (id_user) REFERENCES Utilisateur (id_user) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (id_grp) REFERENCES Groupe (id_user) ON DELETE CASCADE ON UPDATE CASCADE,
-    UNIQUE (id_user, id_grp) -- the user can only rate the band once 
+    UNIQUE (id_user, id_grp) -- the user can only rate the band once
 );
 
 CREATE TABLE Avis_Morceau (
     id_avis INTEGER PRIMARY KEY NOT NULL,
     id_user INTEGER NOT NULL,
     id_song INTEGER NOT NULL,
+    commentary VARCHAR(50),
     note_m INTEGER NOT NULL,
     CONSTRAINT note_min CHECK (note_m >= 0),
     CONSTRAINT note_max CHECK (note_m <= 5),
@@ -130,6 +131,7 @@ CREATE TABLE Avis_Lieu (
     id_avis INTEGER PRIMARY KEY NOT NULL,
     id_user INTEGER NOT NULL,
     id_place INTEGER NOT NULL,
+    commentary VARCHAR(50),
     note_l INTEGER NOT NULL,
     CONSTRAINT note_min CHECK (note_l >= 0),
     CONSTRAINT note_max CHECK (note_l <= 5),
@@ -192,11 +194,13 @@ CREATE TABLE organise (
     PRIMARY KEY (id_event, id_user)
 );
 
+CREATE TYPE interaction_status AS ENUM ('INTERESTED', 'PARTICIPATE', 'NOT_INTERESTED');
+
 CREATE TABLE interaction (
     id_p SERIAL PRIMARY KEY NOT NULL,
     id_user INTEGER NOT NULL,
     id_event INTEGER NOT NULL,
-    status_s INTEGER NOT NULL, --(INTERESSESTED = 1, PARTICIPATE =0 , NOT_INTERESTED = -1)
+    status_s interaction_status NOT NULL,
     FOREIGN KEY (id_user) REFERENCES Utilisateur (id_user) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (id_event) REFERENCES Evenement (id_event) ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -217,8 +221,23 @@ CREATE TABLE amitie (
     FOREIGN KEY (id_userA) REFERENCES Utilisateur (id_user) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (id_userB) REFERENCES Utilisateur (id_user) ON DELETE CASCADE ON UPDATE CASCADE,
     PRIMARY KEY (id_userA, id_userB)
-    -- CREATE SYMENTRIC KEY
 );
+
+CREATE OR REPLACE FUNCTION ensure_symmetric_amitie() RETURNS TRIGGER AS $friends$
+    BEGIN
+    -- Check if the reverse relationship already exists
+    IF NOT EXISTS (SELECT 1 FROM amitie WHERE id_userA = NEW.id_userB AND id_userB = NEW.id_userA) THEN
+        -- If not, insert it
+        INSERT INTO amitie (id_userA, id_userB) VALUES (NEW.id_userB, NEW.id_userA);
+    END IF;
+    RETURN NEW;
+    END;
+$friends$ LANGUAGE plpgsql;
+
+CREATE TRIGGER amitie_trigger
+AFTER INSERT ON amitie
+FOR EACH ROW EXECUTE FUNCTION ensure_symmetric_amitie();
+
 
 CREATE TABLE pl_belongs (
     id_s INTEGER NOT NULL,
