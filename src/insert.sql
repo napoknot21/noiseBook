@@ -1,0 +1,1 @@
+COPY Utilisateur FROM 'data/utilisateur_data.csv' WITH (FORMAT csv);

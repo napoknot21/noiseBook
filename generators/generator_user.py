@@ -21,4 +21,3 @@ with open(utilisateur_file, "w", newline="") as csvfile:
     writer.writerows(utilisateur_data)
 
 print(f"[*] Data generated and exported to {utilisateur_file} CSV file succesfully!")
-
