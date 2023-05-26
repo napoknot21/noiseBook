@@ -58,7 +58,7 @@ CREATE TABLE Evenement_Passe (
 CREATE TABLE Evenement_Futur (
     id_event INTEGER PRIMARY KEY, -- unique identifier for the event, also an event id
     date_ef DATE NOT NULL, -- date of the event
-    name_ef VARCHAR NOT NULL, -- name of the event
+    name_ef VARCHAR NOT NULL -- name of the event
 ) INHERITS (Evenement);
 
 

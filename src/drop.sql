@@ -38,6 +38,7 @@ DROP TABLE IF EXISTS Playlist CASCADE;
 -- Some relational associations
 DROP TABLE IF EXISTS concert CASCADE; -- group and event associated
 DROP TABLE IF EXISTS organise CASCADE; -- association and event associated
+DROP TYPE IF EXISTS interaction_status CASCADE; 
 DROP TABLE IF EXISTS interaction CASCADE;
 DROP TABLE IF EXISTS pl_belongs CASCADE ; -- The songs track belong to the PlayList
 DROP TABLE IF EXISTS relation_ta CASCADE;
