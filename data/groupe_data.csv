@@ -1,10 +1,10 @@
 name_user,email,status_g
-ABBA,abba@example.com,t
-AC/DC,acdc@example.com,t
-Aerosmith,aerosmith@example.com,t
-The Allman Brothers Band,theallmanbrothersband@example.com,t
-Amadou and Mariam,amadouandmariam@example.com,f
-The Andrews Sisters,theandrewssisters@example.com,f
+ABBA,abba@example.com,0
+AC/DC,acdc@example.com,1
+Aerosmith,aerosmith@example.com,1
+The Allman Brothers Band,theallmanbrothersband@example.com,1
+Amadou and Mariam,amadouandmariam@example.com,0
+The Andrews Sisters,theandrewssisters@example.com,1
 The Animals,theanimals@example.com,t
 Arcade Fire,arcadefire@example.com,t
 The Band,theband@example.com,t
